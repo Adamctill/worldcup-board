@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Market board template</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --accent:#FFB72B; --accent-hot:#FFD166; --accent-deep:#C97E12;
+  --rise:#34F5A2; --fall:#FF4D3D;
+  --ink:#0B0908; --text:#F7EFE2; --muted:#9A8C76;
+  --track:rgba(255,183,43,.07);
+  --glow-t:rgba(255,183,43,.45); --glow-w:rgba(255,183,43,.18);
+  --rise-glow:rgba(52,245,162,.6); --fall-glow:rgba(255,77,61,.6);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:#070605; min-height:100vh;
+  display:flex; align-items:flex-start; justify-content:center; gap:28px;
+  padding:32px 24px; flex-wrap:wrap;
+  font-family:"Space Grotesk",system-ui,sans-serif; color:#F7EFE2;
+}
+.stage{
+  width:min(400px,100%); aspect-ratio:9/16;
+  background:var(--ink); border-radius:28px; overflow:hidden;
+  padding:52px 30px 38px; display:flex; flex-direction:column;
+  flex-shrink:0; color:var(--text);
+}
+.eyebrow{font-size:11px; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--accent); font-weight:700; opacity:0}
+h1{font-family:"Fraunces",serif; font-weight:600; font-size:33px;
+  letter-spacing:-0.01em; line-height:1.05; margin:10px 0 6px; opacity:0;
+  white-space:pre-line}
+.event{font-size:14px; color:var(--muted); margin-bottom:28px; opacity:0; min-height:18px}
+.rows{flex:1; display:flex; flex-direction:column; gap:16px}
+.row{will-change:transform}
+.row.enter{opacity:0}
+.row-top{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:7px}
+.team{font-size:15px; font-weight:700; caret-color:var(--text)}
+.right{display:flex; align-items:baseline; gap:8px}
+.num{font-size:19px; font-weight:700; font-variant-numeric:tabular-nums;
+  transition:color .35s, text-shadow .35s}
+.num.up{color:var(--rise); text-shadow:0 0 14px var(--rise-glow)}
+.num.down{color:var(--fall); text-shadow:0 0 14px var(--fall-glow)}
+.chip{font-size:12px; font-weight:700; font-variant-numeric:tabular-nums;
+  opacity:0; transform:translateY(3px);
+  transition:opacity .3s cubic-bezier(.22,1,.36,1), transform .3s cubic-bezier(.22,1,.36,1)}
+.chip.in{opacity:1; transform:none}
+.chip-rise{color:var(--rise)} .chip-fall{color:var(--fall)} .chip-flat{color:var(--muted)}
+.track{height:12px; background:var(--track); border-radius:7px; position:relative}
+.fill{position:absolute; left:0; top:0; height:12px; border-radius:7px;
+  background:linear-gradient(90deg,var(--accent-deep),var(--accent) 70%,var(--accent-hot));
+  box-shadow:0 0 16px var(--glow-t), 0 0 38px var(--glow-w);
+  transition:width 1s cubic-bezier(.22,1,.36,1)}
+.foot{display:flex; justify-content:space-between; align-items:center;
+  margin-top:24px; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted)}
+.live{display:flex; align-items:center; gap:7px; color:var(--accent)}
+.dot{width:7px; height:7px; border-radius:50%; background:var(--accent);
+  box-shadow:0 0 10px var(--glow-t)}
+.edit{border-radius:6px; outline:none; cursor:text;
+  transition:box-shadow .2s; padding:0 2px; margin:0 -2px; min-width:14px; display:inline-block}
+.edit:hover{box-shadow:0 0 0 1px var(--glow-t)}
+.edit:focus{box-shadow:0 0 0 2px var(--accent)}
+.edit:empty::before{content:attr(data-ph); color:var(--muted); opacity:.5}
+.stage.dense h1{font-size:27px; margin:8px 0 4px}
+.stage.dense .event{margin-bottom:16px; font-size:13px}
+.stage.dense .rows{gap:9px}
+.stage.dense .row-top{margin-bottom:4px}
+.stage.dense .team{font-size:13px}
+.stage.dense .num{font-size:15px}
+.stage.dense .chip{font-size:11px}
+.stage.dense .track,.stage.dense .fill{height:8px; border-radius:5px}
+.stage.dense .foot{margin-top:16px}
+@media (prefers-reduced-motion:no-preference){
+  .in-up{animation:inUp .6s cubic-bezier(.22,1,.36,1) forwards}
+  .row.enter.in-up{opacity:1}
+  @keyframes inUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .lead .fill{animation:breathe 2s ease-in-out infinite}
+  @keyframes breathe{0%,100%{filter:brightness(1)}50%{filter:brightness(1.22)}}
+  .dot{animation:pulse 1.6s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+}
+@media (prefers-reduced-motion:reduce){
+  .eyebrow,h1,.event,.row.enter{opacity:1}
+  .fill,.chip,.num{transition:none}
+}
+.panel{width:min(380px,100%); display:flex; flex-direction:column; gap:12px; font-size:13px}
+.panel h2{font-size:13px; font-weight:500; letter-spacing:.12em;
+  text-transform:uppercase; color:#9A8C76; margin-top:8px}
+.panel h2:first-child{margin-top:0}
+.swatches{display:flex; gap:8px; flex-wrap:wrap}
+.swatch{width:28px; height:28px; border-radius:50%; cursor:pointer;
+  border:2px solid transparent; padding:0}
+.swatch:hover,.swatch:focus-visible{border-color:#F7EFE2; outline:none}
+.theme-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px 14px}
+.tfield{display:flex; align-items:center; justify-content:space-between; gap:8px; color:#C9BFAF}
+.tfield input[type=color]{width:34px; height:26px; border:1px solid #2A241D;
+  border-radius:6px; background:#100D0A; padding:2px; cursor:pointer}
+.sfield{display:flex; align-items:center; gap:10px; color:#C9BFAF}
+.sfield input[type=range]{flex:1; accent-color:var(--accent)}
+.sfield output{min-width:42px; text-align:right; font-variant-numeric:tabular-nums; color:#F7EFE2}
+.panel textarea{width:100%; min-height:300px; resize:vertical;
+  background:#100D0A; color:#F7EFE2; border:1px solid #2A241D;
+  border-radius:12px; padding:14px; font:12px/1.6 ui-monospace,monospace}
+.panel textarea:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.btns{display:flex; gap:8px; flex-wrap:wrap}
+.panel button{font:inherit; font-weight:500; color:#F7EFE2; background:#1C1814;
+  border:1px solid #2A241D; border-radius:999px; padding:8px 18px; cursor:pointer;
+  transition:border-color .2s, color .2s}
+.panel button:hover{border-color:var(--accent); color:var(--accent)}
+.panel button:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.panel button.primary{background:var(--accent); border-color:var(--accent); color:#14110D}
+.msg{min-height:18px; font-size:12px}
+.msg.err{color:#FF4D3D} .msg.ok{color:#34F5A2}
+.hint{color:#9A8C76; line-height:1.6}
+</style>
+</head>
+<body>
+<main class="stage" id="stage">
+  <p class="eyebrow edit" id="eb" contenteditable="true" spellcheck="false" data-ph="eyebrow"></p>
+  <h1 class="edit" id="ttl" contenteditable="true" spellcheck="false" data-ph="Headline"></h1>
+  <p class="event edit" id="event" contenteditable="true" spellcheck="false" data-ph="caption for this state"></p>
+  <div class="rows" id="rows"></div>
+  <footer class="foot">
+    <span class="live"><span class="dot"></span><span class="edit" id="liveLabel" contenteditable="true" spellcheck="false" data-ph="label"></span></span>
+    <span class="edit" id="brand" contenteditable="true" spellcheck="false" data-ph="your name"></span>
+  </footer>
+</main>
+
+<aside class="panel">
+  <h2>Theme</h2>
+  <div class="swatches" id="swatches" aria-label="Accent presets"></div>
+  <div class="theme-grid">
+    <label class="tfield">Accent <input type="color" id="c-accent"></label>
+    <label class="tfield">Background <input type="color" id="c-bg"></label>
+    <label class="tfield">Rising <input type="color" id="c-rise"></label>
+    <label class="tfield">Falling <input type="color" id="c-fall"></label>
+    <label class="tfield">Text <input type="color" id="c-text"></label>
+  </div>
+  <label class="sfield">Glow <input type="range" id="s-glow" min="0" max="200" step="5"><output id="o-glow"></output></label>
+  <label class="sfield">Seconds per state <input type="range" id="s-speed" min="2" max="10" step="0.5"><output id="o-speed"></output></label>
+
+  <h2>Your data</h2>
+  <textarea id="editor" spellcheck="false" aria-label="Board data as JSON"></textarea>
+  <div class="btns">
+    <button class="primary" id="apply">Apply data</button>
+    <button id="playpause">Pause</button>
+    <button id="step">Next state</button>
+    <button id="reset">Reset to example</button>
+  </div>
+  <p class="msg" id="msg"></p>
+  <p class="hint">Click any text on the board to edit it — headline, eyebrow,
+  caption, team names, the footer labels. Renaming a team renames it in every
+  state. Known countries get flag-striped names automatically; give any item
+  "colors": ["#hex","#hex"] in the JSON for custom stripes (players, brands,
+  anything). Colors and sliders apply live and save with your data. Items are
+  matched across states by name. Risers climb, fallers sink, everyone else
+  holds still.</p>
+</aside>
+
+<script>
+const DEFAULT_THEME = {
+  accent:"#FFB72B", rise:"#34F5A2", fall:"#FF4D3D",
+  bg:"#0B0908", text:"#F7EFE2", glow:100, speed:4.2
+};
+const DEFAULT_DATA = {
+  eyebrow: "World Cup 2026",
+  headline: "Who wins\nit all?",
+  brand: "",
+  liveLabel: "live odds",
+  theme: Object.assign({}, DEFAULT_THEME),
+  states: [
+    { event: "At the December draw", items: [
+      {name:"Spain",value:18.2},{name:"England",value:15.4},{name:"France",value:11.8},
+      {name:"Brazil",value:11.1},{name:"Argentina",value:10.0},{name:"Portugal",value:9.1},
+      {name:"Germany",value:6.7},{name:"Netherlands",value:4.8},{name:"Norway",value:3.4},
+      {name:"Belgium",value:2.8}
+    ]},
+    { event: "Jun 11 · per ESPN/DraftKings", items: [
+      {name:"Spain",value:18.2},{name:"France",value:17.4},{name:"England",value:14.3},
+      {name:"Portugal",value:11.1},{name:"Brazil",value:10.5},{name:"Argentina",value:10.5},
+      {name:"Germany",value:6.7},{name:"Netherlands",value:4.8},{name:"Norway",value:3.4},
+      {name:"Belgium",value:2.8}
+    ]}
+  ]
+};
+const PRESETS = ["#FFB72B","#3B9DFF","#3DFF8E","#22E4E4","#FF3DC8","#9D6BFF"];
+
+const FLAGS = {
+  "spain":["#E83038","#F1BF00","#E83038"], "france":["#4D8FE0","#FFFFFF","#EF4135"],
+  "england":["#FFFFFF","#E03A4E","#FFFFFF"], "brazil":["#1FBF5F","#FFDF00","#3E7BD6"],
+  "argentina":["#74ACDF","#FFFFFF","#74ACDF"], "portugal":["#2DA84F","#F2424A"],
+  "germany":["#8A8A8A","#E04545","#FFCE00"], "netherlands":["#E05550","#FFFFFF","#4D7BD0"],
+  "usa":["#E04A57","#FFFFFF","#6A7FD6"], "united states":["#E04A57","#FFFFFF","#6A7FD6"],
+  "mexico":["#2DA567","#FFFFFF","#E04A57"], "canada":["#E8424F","#FFFFFF","#E8424F"],
+  "norway":["#E04A57","#FFFFFF","#5577D0"], "japan":["#FFFFFF","#E0566B","#FFFFFF"],
+  "belgium":["#8A8A8A","#FDDA24","#EF4A50"], "colombia":["#FCD116","#4D7BD0","#E04A57"],
+  "uruguay":["#6FB8E8","#FFFFFF","#6FB8E8"], "croatia":["#E8485B","#FFFFFF","#5B7FD8"],
+  "switzerland":["#E8454C","#FFFFFF","#E8454C"], "morocco":["#E0494F","#3DA060"],
+  "senegal":["#2DA050","#FDEF42","#E0494F"], "turkiye":["#E84A50","#FFFFFF","#E84A50"],
+  "turkey":["#E84A50","#FFFFFF","#E84A50"], "ecuador":["#FFDD00","#4D7BD0","#ED4A55"],
+  "egypt":["#E0495B","#FFFFFF","#9A9A9A"], "south korea":["#FFFFFF","#D6566B","#4D7BD0"],
+  "australia":["#5577C9","#FFFFFF","#E8505C"], "sweden":["#4D8FD0","#FECC02"],
+  "austria":["#ED4A55","#FFFFFF","#ED4A55"], "scotland":["#4D85D6","#FFFFFF","#4D85D6"],
+  "paraguay":["#E0494F","#FFFFFF","#4D7BD0"], "qatar":["#A8455E","#FFFFFF"],
+  "saudi arabia":["#3DA060","#FFFFFF","#3DA060"], "iran":["#3DA860","#FFFFFF","#E0494F"],
+  "ghana":["#E0495B","#FCD116","#2D9A56"], "ivory coast":["#FF9A3D","#FFFFFF","#2DA85B"],
+  "tunisia":["#ED4A50","#FFFFFF","#ED4A50"], "algeria":["#2DA055","#FFFFFF","#E0566B"],
+  "panama":["#E0495B","#FFFFFF","#5577D0"], "south africa":["#2D9A60","#FFB81C","#E85548"],
+  "cape verde":["#5577D0","#FFFFFF","#E0566B"], "new zealand":["#5577C9","#FFFFFF","#E8505C"],
+  "jordan":["#E0495B","#FFFFFF","#2D9A56"], "uzbekistan":["#2DAFC9","#FFFFFF","#3DBF6A"],
+  "haiti":["#5577D6","#E0495B"], "curacao":["#5577D6","#F9E814","#5577D6"],
+  "bosnia and herzegovina":["#5577D6","#FECB00"], "bosnia":["#5577D6","#FECB00"],
+  "czechia":["#FFFFFF","#E0495B","#5577D6"], "congo dr":["#4D9FE8","#F7D618","#E0495B"],
+  "dr congo":["#4D9FE8","#F7D618","#E0495B"], "iraq":["#E0495B","#FFFFFF","#3DA060"],
+  "south africa ":["#2D9A60","#FFB81C","#E85548"]
+};
+
+function colorize(el, name, custom){
+  const cols = custom || FLAGS[name.toLowerCase().trim()];
+  if (cols && cols.length > 1){
+    el.style.backgroundImage = "linear-gradient(90deg,"+cols.join(",")+")";
+    el.style.webkitBackgroundClip = "text";
+    el.style.backgroundClip = "text";
+    el.style.color = "transparent";
+  } else if (cols && cols.length === 1){
+    el.style.backgroundImage = "none";
+    el.style.color = cols[0];
+  } else {
+    el.style.backgroundImage = "none";
+    el.style.color = "";
+  }
+}
+
+const STORE = "market-board-data";
+const store = {
+  get(){ try { return localStorage.getItem(STORE); } catch(e){ return null; } },
+  set(v){ try { localStorage.setItem(STORE, v); } catch(e){} },
+  del(){ try { store.del(); } catch(e){} }
+};
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const rowsEl = document.getElementById("rows");
+const eventEl = document.getElementById("event");
+const msgEl = document.getElementById("msg");
+const editor = document.getElementById("editor");
+let DATA, rowNodes = {}, state = 0, timer = null, playing = true;
+
+function hexToRgb(h){
+  h = h.replace("#","");
+  if (h.length === 3) h = h.split("").map(c=>c+c).join("");
+  return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+}
+function rgba(hex, a){ const [r,g,b] = hexToRgb(hex); return "rgba("+r+","+g+","+b+","+a+")"; }
+function mix(hex, target, f){
+  const [r,g,b] = hexToRgb(hex);
+  const t = target === "w" ? [255,255,255] : [0,0,0];
+  return "rgb("+Math.round(r+(t[0]-r)*f)+","+Math.round(g+(t[1]-g)*f)+","+Math.round(b+(t[2]-b)*f)+")";
+}
+function applyTheme(){
+  const th = DATA.theme;
+  const g = th.glow / 100;
+  const r = document.documentElement.style;
+  r.setProperty("--accent", th.accent);
+  r.setProperty("--accent-hot", mix(th.accent,"w",.35));
+  r.setProperty("--accent-deep", mix(th.accent,"b",.3));
+  r.setProperty("--rise", th.rise);
+  r.setProperty("--fall", th.fall);
+  r.setProperty("--ink", th.bg);
+  r.setProperty("--text", th.text);
+  r.setProperty("--muted", rgba(th.text,.55));
+  r.setProperty("--track", rgba(th.accent,.07));
+  r.setProperty("--glow-t", rgba(th.accent, Math.min(.45*g, 1)));
+  r.setProperty("--glow-w", rgba(th.accent, Math.min(.18*g, 1)));
+  r.setProperty("--rise-glow", rgba(th.rise, Math.min(.6*g, 1)));
+  r.setProperty("--fall-glow", rgba(th.fall, Math.min(.6*g, 1)));
+  document.getElementById("c-accent").value = th.accent;
+  document.getElementById("c-rise").value = th.rise;
+  document.getElementById("c-fall").value = th.fall;
+  document.getElementById("c-bg").value = th.bg;
+  document.getElementById("c-text").value = th.text;
+  document.getElementById("s-glow").value = th.glow;
+  document.getElementById("o-glow").textContent = th.glow + "%";
+  document.getElementById("s-speed").value = th.speed;
+  document.getElementById("o-speed").textContent = th.speed.toFixed(1) + "s";
+}
+
+function validate(d){
+  if (typeof d !== "object" || d === null) throw "Data must be a JSON object.";
+  if (!Array.isArray(d.states) || d.states.length < 1) throw "Needs a 'states' array with at least one state.";
+  d.states.forEach((s,si)=>{
+    if (!Array.isArray(s.items) || s.items.length < 2) throw "State "+(si+1)+" needs an 'items' array with 2+ entries.";
+    s.items.forEach((it,ii)=>{
+      if (typeof it.name !== "string" || !it.name.trim()) throw "State "+(si+1)+", item "+(ii+1)+": missing 'name'.";
+      if (typeof it.value !== "number" || !isFinite(it.value) || it.value < 0) throw "State "+(si+1)+", '"+it.name+"': 'value' must be a number ≥ 0.";
+    });
+  });
+  d.theme = Object.assign({}, DEFAULT_THEME, d.theme || {});
+  d.theme.glow = Math.max(0, Math.min(200, Number(d.theme.glow) || 0));
+  d.theme.speed = Math.max(1, Math.min(15, Number(d.theme.speed) || 4.2));
+  return d;
+}
+
+function syncEditor(note){
+  editor.value = JSON.stringify(DATA, null, 2);
+  store.set(editor.value);
+  if (note){ msgEl.textContent = note; msgEl.className = "msg ok"; }
+}
+
+let wasPlaying = true;
+function pauseForEditing(){ wasPlaying = playing; clearInterval(timer); }
+function resumeAfterEditing(){ if (wasPlaying && playing) restartLoop(); }
+
+const FLAG_COLORS = {
+  spain:["#E8112D","#FFC400","#E8112D"], france:["#3D7DE4","#FFFFFF","#EF4135"],
+  england:["#FFFFFF","#E8112D"], portugal:["#0E9347","#E8112D","#FFE900"],
+  brazil:["#00A859","#FEDD00","#3E7BFA"], argentina:["#75AADB","#FFFFFF","#75AADB"],
+  germany:["#E8112D","#FFCE00"], netherlands:["#E8512D","#FFFFFF","#5B8DEF"],
+  usa:["#E8112D","#FFFFFF","#5B8DEF"], "united states":["#E8112D","#FFFFFF","#5B8DEF"],
+  mexico:["#0E9347","#FFFFFF","#E8112D"], japan:["#FFFFFF","#E8112D"],
+  morocco:["#E8112D","#0E9347"], belgium:["#FFCE00","#E8112D"],
+  croatia:["#E8112D","#FFFFFF","#5B8DEF"], norway:["#E8112D","#FFFFFF","#5B8DEF"],
+  colombia:["#FFCE00","#5B8DEF","#E8112D"], uruguay:["#75AADB","#FFFFFF","#75AADB"],
+  senegal:["#0E9347","#FFE900","#E8112D"], switzerland:["#E8112D","#FFFFFF"],
+  canada:["#E8112D","#FFFFFF","#E8112D"], ecuador:["#FFCE00","#5B8DEF","#E8112D"],
+  egypt:["#E8112D","#FFFFFF","#FFC400"], turkiye:["#E8112D","#FFFFFF"],
+  "türkiye":["#E8112D","#FFFFFF"], "south korea":["#FFFFFF","#E8112D","#5B8DEF"],
+  "ivory coast":["#FF8A3D","#FFFFFF","#0E9347"], sweden:["#5B8DEF","#FFCE00"],
+  denmark:["#E8112D","#FFFFFF"], italy:["#0E9347","#FFFFFF","#E8112D"]
+};
+function nameColors(item){
+  if (Array.isArray(item.colors) && item.colors.length) return item.colors;
+  return FLAG_COLORS[(item.name||"").trim().toLowerCase()] || null;
+}
+function styleName(el, item){
+  const cols = nameColors(item);
+  if (!cols){
+    el.style.background = ""; el.style.webkitBackgroundClip = "";
+    el.style.backgroundClip = ""; el.style.color = "";
+    return;
+  }
+  const n = cols.length, stops = [];
+  cols.forEach((c,i)=>{
+    stops.push(c+" "+Math.round(i*100/n)+"%", c+" "+Math.round((i+1)*100/n)+"%");
+  });
+  el.style.background = "linear-gradient(90deg,"+stops.join(",")+")";
+  el.style.webkitBackgroundClip = "text";
+  el.style.backgroundClip = "text";
+  el.style.color = "transparent";
+}
+
+function buildRow(name){
+  const el = document.createElement("div");
+  el.className = "row enter";
+  el.innerHTML =
+    '<div class="row-top"><span class="team edit" contenteditable="true" spellcheck="false"></span>'+
+    '<span class="right"><span class="chip"></span><span class="num">0.0%</span></span></div>'+
+    '<div class="track"><div class="fill" style="width:0%"></div></div>';
+  const teamEl = el.querySelector(".team");
+  teamEl.textContent = name;
+  teamEl.addEventListener("focus", pauseForEditing);
+  teamEl.addEventListener("keydown", (e)=>{ if (e.key === "Enter"){ e.preventDefault(); teamEl.blur(); } });
+  teamEl.addEventListener("blur", ()=>{
+    const oldKey = el.dataset.key;
+    const next = teamEl.textContent.trim();
+    if (!next || next === oldKey){ teamEl.textContent = oldKey; resumeAfterEditing(); return; }
+    if (rowNodes[next]){ teamEl.textContent = oldKey; msgEl.textContent = "Two items can't share the name '"+next+"'."; msgEl.className = "msg err"; resumeAfterEditing(); return; }
+    DATA.states.forEach(s=>s.items.forEach(it=>{ if (it.name === oldKey) it.name = next; }));
+    delete rowNodes[oldKey];
+    rowNodes[next] = el;
+    el.dataset.key = next;
+    teamEl.textContent = next;
+    const it = DATA.states[state].items.find(x=>x.name===next) || {name:next};
+    styleName(teamEl, it);
+    syncEditor("Renamed '"+oldKey+"' → '"+next+"' across all states.");
+    resumeAfterEditing();
+  });
+  return el;
+}
+
+function countTo(el, from, to, dur, dir){
+  el.classList.remove("up","down");
+  if (!reduced && dir) el.classList.add(dir);
+  const done = ()=>setTimeout(()=>el.classList.remove("up","down"), 900);
+  if (reduced || Math.abs(from-to) < 0.001){ el.textContent = to.toFixed(1)+"%"; done(); return; }
+  const start = performance.now();
+  (function tick(now){
+    const t = Math.min((now-start)/dur, 1);
+    const eased = 1 - Math.pow(1-t, 3);
+    el.textContent = (from + (to-from)*eased).toFixed(1)+"%";
+    if (t < 1) requestAnimationFrame(tick); else done();
+  })(performance.now());
+}
+
+function render(idx, entrance){
+  state = idx;
+  const snap = DATA.states[idx];
+  const base = DATA.states[0];
+  const sorted = [...snap.items].sort((a,b)=>b.value-a.value);
+  const max = Math.max(sorted[0].value, 0.001);
+
+  Object.values(rowNodes).forEach(n=>{ n.getAnimations().forEach(a=>a.finish()); });
+  const listTop = rowsEl.getBoundingClientRect().top;
+  const first = {};
+  Object.values(rowNodes).forEach(n=>{ first[n.dataset.key] = n.getBoundingClientRect().top - listTop; });
+
+  const seen = new Set();
+  sorted.forEach((t,i)=>{
+    const key = t.name;
+    seen.add(key);
+    let node = rowNodes[key];
+    if (!node){ node = buildRow(t.name); node.dataset.key = key; rowNodes[key] = node; }
+    rowsEl.appendChild(node);
+    node.classList.toggle("lead", i===0);
+    styleName(node.querySelector(".team"), t);
+
+    const prev = parseFloat(node.querySelector(".num").textContent) || 0;
+    const changed = Math.abs(prev - t.value) > 0.05;
+    const dir = !entrance && changed ? (t.value > prev ? "up" : "down") : null;
+    const delay = entrance ? 140 + i*55 : 60;
+    if (changed || entrance){
+      setTimeout(()=>{
+        node.querySelector(".fill").style.width = (t.value/max*100)+"%";
+        countTo(node.querySelector(".num"), prev, t.value, 650, dir);
+      }, reduced ? 0 : delay);
+    }
+
+    const opener = base.items.find(b=>b.name===key);
+    const delta = opener ? t.value - opener.value : 0;
+    const chip = node.querySelector(".chip");
+    chip.classList.remove("in");
+    if (idx === 0 || Math.abs(delta) < 0.05){ chip.textContent=""; chip.className="chip chip-flat"; }
+    else {
+      chip.textContent = (delta>0?"▲ ":"▼ ")+Math.abs(delta).toFixed(1);
+      chip.className = "chip "+(delta>0?"chip-rise":"chip-fall");
+      setTimeout(()=>chip.classList.add("in"), reduced ? 0 : 520);
+    }
+
+    if (entrance){
+      if (!reduced) setTimeout(()=>node.classList.add("in-up"), 80 + i*60);
+      else node.classList.remove("enter");
+    } else {
+      node.classList.remove("enter");
+    }
+  });
+
+  Object.keys(rowNodes).forEach(k=>{
+    if (!seen.has(k)){ rowNodes[k].remove(); delete rowNodes[k]; }
+  });
+
+  if (!entrance && !reduced){
+    const listTopNow = rowsEl.getBoundingClientRect().top;
+    sorted.forEach(t=>{
+      const node = rowNodes[t.name];
+      if (!node || first[t.name] === undefined) return;
+      const dy = first[t.name] - (node.getBoundingClientRect().top - listTopNow);
+      if (Math.abs(dy) > 1 && Math.abs(dy) <= rowsEl.clientHeight){
+        node.animate(
+          [{transform:"translateY("+dy+"px)"},{transform:"translateY(0)"}],
+          {duration:650, easing:"cubic-bezier(.22,1,.36,1)"}
+        );
+      }
+    });
+  }
+
+  eventEl.textContent = snap.event || "";
+}
+
+function applyData(d, fresh){
+  DATA = d;
+  document.getElementById("eb").textContent = d.eyebrow || "";
+  document.getElementById("ttl").textContent = d.headline || "";
+  document.getElementById("brand").textContent = d.brand || "";
+  document.getElementById("liveLabel").textContent = d.liveLabel || "";
+  const maxItems = Math.max(...d.states.map(s=>s.items.length));
+  document.getElementById("stage").classList.toggle("dense", maxItems >= 8);
+  applyTheme();
+  if (fresh){
+    Object.values(rowNodes).forEach(n=>n.remove());
+    rowNodes = {};
+    if (!reduced){
+      document.getElementById("eb").classList.add("in-up");
+      setTimeout(()=>document.getElementById("ttl").classList.add("in-up"), 120);
+      setTimeout(()=>document.getElementById("event").classList.add("in-up"), 240);
+    } else {
+      ["eb","ttl","event"].forEach(id=>document.getElementById(id).style.opacity=1);
+    }
+    render(0, true);
+  }
+  restartLoop();
+}
+
+function restartLoop(){
+  clearInterval(timer);
+  if (playing && !reduced && DATA.states.length > 1){
+    timer = setInterval(()=>render((state+1) % DATA.states.length, false), DATA.theme.speed * 1000);
+  }
+}
+
+function wireText(id, save, opts){
+  const el = document.getElementById(id);
+  el.addEventListener("focus", pauseForEditing);
+  el.addEventListener("keydown", (e)=>{
+    if (e.key === "Enter" && !(opts && opts.multiline)){ e.preventDefault(); el.blur(); }
+  });
+  el.addEventListener("blur", ()=>{ save(el); syncEditor("Saved."); resumeAfterEditing(); });
+}
+wireText("eb",        el=>{ DATA.eyebrow   = el.textContent.trim(); });
+wireText("ttl",       el=>{ DATA.headline  = el.innerText.replace(/\n+$/,""); }, {multiline:true});
+wireText("brand",     el=>{ DATA.brand     = el.textContent.trim(); });
+wireText("liveLabel", el=>{ DATA.liveLabel = el.textContent.trim(); });
+wireText("event",     el=>{ DATA.states[state].event = el.textContent.trim(); });
+
+function wireTheme(id, key, parse){
+  const el = document.getElementById(id);
+  el.addEventListener("input", ()=>{
+    DATA.theme[key] = parse ? parse(el.value) : el.value;
+    applyTheme();
+  });
+  el.addEventListener("change", ()=>syncEditor("Theme saved."));
+}
+wireTheme("c-accent","accent"); wireTheme("c-rise","rise"); wireTheme("c-fall","fall");
+wireTheme("c-bg","bg"); wireTheme("c-text","text");
+wireTheme("s-glow","glow", v=>Number(v));
+const speedEl = document.getElementById("s-speed");
+speedEl.addEventListener("input", ()=>{
+  DATA.theme.speed = Number(speedEl.value);
+  document.getElementById("o-speed").textContent = DATA.theme.speed.toFixed(1)+"s";
+});
+speedEl.addEventListener("change", ()=>{ syncEditor("Theme saved."); restartLoop(); });
+
+const sw = document.getElementById("swatches");
+PRESETS.forEach(hex=>{
+  const b = document.createElement("button");
+  b.className = "swatch"; b.style.background = hex;
+  b.setAttribute("aria-label","Set accent to "+hex);
+  b.onclick = ()=>{ DATA.theme.accent = hex; applyTheme(); syncEditor("Accent set."); };
+  sw.appendChild(b);
+});
+
+document.getElementById("apply").onclick = ()=>{
+  try {
+    const d = validate(JSON.parse(editor.value));
+    msgEl.textContent = "Applied."; msgEl.className = "msg ok";
+    applyData(d, true);
+    syncEditor();
+  } catch(e){
+    msgEl.textContent = typeof e === "string" ? e : "Invalid JSON — check for missing commas or quotes.";
+    msgEl.className = "msg err";
+  }
+};
+document.getElementById("reset").onclick = ()=>{
+  const d = validate(JSON.parse(JSON.stringify(DEFAULT_DATA)));
+  editor.value = JSON.stringify(d, null, 2);
+  store.del();
+  msgEl.textContent = "Example restored."; msgEl.className = "msg ok";
+  applyData(d, true);
+};
+document.getElementById("playpause").onclick = (e)=>{
+  playing = !playing;
+  e.target.textContent = playing ? "Pause" : "Play";
+  restartLoop();
+};
+document.getElementById("step").onclick = ()=>{
+  playing = false; document.getElementById("playpause").textContent = "Play";
+  clearInterval(timer);
+  render((state+1) % DATA.states.length, false);
+};
+
+let initial = DEFAULT_DATA;
+const saved = store.get();
+if (saved){ try { initial = validate(JSON.parse(saved)); } catch(e){ initial = DEFAULT_DATA; } }
+const d0 = validate(JSON.parse(JSON.stringify(initial)));
+editor.value = JSON.stringify(d0, null, 2);
+applyData(d0, true);
+</script>
+</body>
+</html>

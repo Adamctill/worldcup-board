@@ -1,0 +1,24 @@
+{
+  "eyebrow": "World Cup 2026",
+  "headline": "Who wins\nit all?",
+  "brand": "",
+  "liveLabel": "live odds",
+  "theme": {
+    "accent": "#FFB72B", "rise": "#34F5A2", "fall": "#FF4D3D",
+    "bg": "#0B0908", "text": "#F7EFE2", "glow": 100, "speed": 4.2
+  },
+  "states": [
+    { "event": "At the December draw", "items": [
+      {"name":"Spain","value":18.2},{"name":"England","value":15.4},{"name":"France","value":11.8},
+      {"name":"Brazil","value":11.1},{"name":"Argentina","value":10.0},{"name":"Portugal","value":9.1},
+      {"name":"Germany","value":6.7},{"name":"Netherlands","value":4.8},{"name":"Norway","value":3.4},
+      {"name":"Belgium","value":2.8}
+    ]},
+    { "event": "Jun 11 · per ESPN/DraftKings", "items": [
+      {"name":"Spain","value":18.2},{"name":"France","value":17.4},{"name":"England","value":14.3},
+      {"name":"Portugal","value":11.1},{"name":"Brazil","value":10.5},{"name":"Argentina","value":10.5},
+      {"name":"Germany","value":6.7},{"name":"Netherlands","value":4.8},{"name":"Norway","value":3.4},
+      {"name":"Belgium","value":2.8}
+    ]}
+  ]
+}
