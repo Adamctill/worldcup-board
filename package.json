@@ -7,11 +7,17 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "remotion:studio": "remotion studio remotion/index.jsx",
+    "render:daily": "remotion render remotion/index.jsx MarketBoard --codec=h264 out/market-update.mp4"
   },
   "dependencies": {
+    "@remotion/cli": "^4.0.475",
+    "@remotion/google-fonts": "^4.0.475",
+    "@remotion/renderer": "^4.0.475",
     "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react-dom": "^19.2.6",
+    "remotion": "^4.0.475"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
