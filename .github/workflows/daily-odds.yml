@@ -1,0 +1,33 @@
+name: Daily Odds Update
+
+on:
+  schedule:
+    # 9 am ET — EDT is UTC-4, so 13:00 UTC covers the World Cup window (Jun-Jul)
+    - cron: '0 13 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-odds:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Update odds
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: node scripts/update-odds.mjs
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/snapshots.json
+          git diff --cached --quiet || git commit -m "chore: update odds $(date -u +%Y-%m-%d)"
+          git push

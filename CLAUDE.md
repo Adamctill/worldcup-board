@@ -86,12 +86,51 @@ Restraint rules:
 
 - The primitive is implied probability (0–100, one decimal). American odds are a
   display format derived at render time, never stored as the source of truth.
-- `data/snapshots.json` is an ordered array of timestamped snapshots. Game-by-game
-  updates = append a snapshot, never mutate history. The timeline scrubber derives
-  entirely from this array.
-- Every snapshot carries `event` (e.g. "After matchday 1") — copy shown to the user.
+- `data/snapshots.json` is a **bare JSON array** of snapshot objects — not the full
+  board config. Shape: `[{ "event": "Jun 12", "items": [{ "name": "Spain", "value": 15.0 }, …] }, …]`.
+  The board config (eyebrow, headline, theme) lives only in `template.html`.
+- Game-by-game updates = append a snapshot, never mutate history. The timeline
+  scrubber derives entirely from this array.
+- Every snapshot carries `event` — copy shown to the user. Format: `"Jun 12"` (month
+  abbrev + numeric day, no year, no time). e.g. `"Jun 12"`, `"After matchday 1"`.
 - When adding a fetch/update script, write it to `scripts/update-odds.mjs`, have it
   validate against the schema, append a snapshot, and exit nonzero on schema drift.
+
+## Odds pipeline (`scripts/update-odds.mjs`)
+
+- Source: The Odds API, sport key `soccer_fifa_world_cup_winner`, market `outrights`,
+  region `us`, format `american`. Endpoint:
+  `GET /v4/sports/{sport}/odds/?apiKey=…&regions=us&markets=outrights&oddsFormat=american`
+- Conversion pipeline (in order):
+  1. American → raw implied prob: positive price → `100/(price+100)`;
+     negative → `|price|/(|price|+100)`
+  2. Average raw probs across all bookmakers per team (reduces line-shopping noise)
+  3. Normalize: divide each average by the sum of all averages × 100 (removes the vig)
+  4. Round to one decimal; sort descending; take top 10
+- API key comes from env var `ODDS_API_KEY`. Script loads `.env` from repo root for
+  local runs (skipping keys already in the environment). In CI the key is a GitHub
+  Actions secret.
+- Script exits 0 with a message (no append) when the API returns no events — odds
+  may not be listed between tournaments.
+
+## Live board (`template.html`)
+
+- When served over HTTP, `template.html` fetches `./data/snapshots.json` on boot and
+  replaces the embedded default states with the live array. Falls back silently to
+  embedded defaults when opened as a local `file://` URL.
+- Guard pattern: `if (location.protocol !== 'file:') { fetch('./data/snapshots.json') … }`
+- User theme and label customizations (stored in localStorage) survive the fetch —
+  only the `states` array is overwritten.
+- Deployed at: `https://adamctill.github.io/worldcup-board/`
+
+## CI / GitHub Actions
+
+- `daily-odds.yml` — runs at 13:00 UTC daily (= 9 am EDT during the World Cup window).
+  Commits `data/snapshots.json` only when odds changed. Uses `workflow_dispatch` for
+  manual runs.
+- `deploy-pages.yml` — deploys `template.html` (as `index.html`) + `data/snapshots.json`
+  to GitHub Pages whenever either file changes on `main`. GitHub Pages source must be
+  set to "GitHub Actions" in repo settings.
 
 ## Quality bar (check before finishing any task)
 

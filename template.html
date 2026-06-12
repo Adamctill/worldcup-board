@@ -569,12 +569,26 @@ document.getElementById("step").onclick = ()=>{
   render((state+1) % DATA.states.length, false);
 };
 
-let initial = DEFAULT_DATA;
-const saved = store.get();
-if (saved){ try { initial = validate(JSON.parse(saved)); } catch(e){ initial = DEFAULT_DATA; } }
-const d0 = validate(JSON.parse(JSON.stringify(initial)));
-editor.value = JSON.stringify(d0, null, 2);
-applyData(d0, true);
+async function boot(){
+  let initial = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  const saved = store.get();
+  if (saved){ try { initial = validate(JSON.parse(saved)); } catch(e){ initial = JSON.parse(JSON.stringify(DEFAULT_DATA)); } }
+  // When served over HTTP, pull fresh states from data/snapshots.json.
+  // Falls back to embedded defaults silently when opened as a local file.
+  if (location.protocol !== 'file:'){
+    try {
+      const r = await fetch('./data/snapshots.json');
+      if (r.ok){
+        const states = await r.json();
+        if (Array.isArray(states) && states.length) initial.states = states;
+      }
+    } catch(e){}
+  }
+  const d0 = validate(JSON.parse(JSON.stringify(initial)));
+  editor.value = JSON.stringify(d0, null, 2);
+  applyData(d0, true);
+}
+boot();
 </script>
 </body>
 </html>
