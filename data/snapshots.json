@@ -493,5 +493,50 @@
         "value": 2.1
       }
     ]
+  },
+  {
+    "event": "Jun 19",
+    "items": [
+      {
+        "name": "France",
+        "value": 16.4
+      },
+      {
+        "name": "Spain",
+        "value": 12.1
+      },
+      {
+        "name": "England",
+        "value": 11.7
+      },
+      {
+        "name": "Argentina",
+        "value": 9.1
+      },
+      {
+        "name": "Portugal",
+        "value": 8.3
+      },
+      {
+        "name": "Brazil",
+        "value": 7.1
+      },
+      {
+        "name": "Germany",
+        "value": 5.7
+      },
+      {
+        "name": "Netherlands",
+        "value": 4.4
+      },
+      {
+        "name": "Norway",
+        "value": 2.9
+      },
+      {
+        "name": "Belgium",
+        "value": 2
+      }
+    ]
   }
 ]
