@@ -1258,5 +1258,50 @@
         "value": 2.6
       }
     ]
+  },
+  {
+    "event": "Jul 6",
+    "items": [
+      {
+        "name": "France",
+        "value": 32.5
+      },
+      {
+        "name": "Argentina",
+        "value": 16.7
+      },
+      {
+        "name": "England",
+        "value": 14.2
+      },
+      {
+        "name": "Spain",
+        "value": 13.5
+      },
+      {
+        "name": "Portugal",
+        "value": 5.9
+      },
+      {
+        "name": "Norway",
+        "value": 4.9
+      },
+      {
+        "name": "Colombia",
+        "value": 3.4
+      },
+      {
+        "name": "Morocco",
+        "value": 3
+      },
+      {
+        "name": "USA",
+        "value": 2.7
+      },
+      {
+        "name": "Belgium",
+        "value": 1.7
+      }
+    ]
   }
 ]
