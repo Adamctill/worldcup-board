@@ -1418,5 +1418,34 @@
         "value": 2.5
       }
     ]
+  },
+  {
+    "event": "Jul 11",
+    "items": [
+      {
+        "name": "France",
+        "value": 36.9
+      },
+      {
+        "name": "Spain",
+        "value": 22.5
+      },
+      {
+        "name": "Argentina",
+        "value": 17.4
+      },
+      {
+        "name": "England",
+        "value": 15.6
+      },
+      {
+        "name": "Norway",
+        "value": 5.4
+      },
+      {
+        "name": "Switzerland",
+        "value": 2.2
+      }
+    ]
   }
 ]
